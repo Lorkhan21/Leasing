@@ -1,0 +1,146 @@
+﻿@using Leasing.Models
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home - RichPaulLeasing";
+}
+
+<!-- category filters - At the TOP -->
+<div class="category-group">
+    <a href="@Url.Action("Index", "Listings", new { type = "Residential" })">
+        <i class="fas fa-home"></i> Residential
+    </a>
+    <a href="@Url.Action("Index", "Listings", new { type = "Commercial" })">
+        <i class="fas fa-store"></i> Commercial
+    </a>
+    <a href="@Url.Action("Index", "Listings", new { type = "Warehouse" })">
+        <i class="fas fa-warehouse"></i> Warehouses
+    </a>
+    <a href="@Url.Action("Index", "Listings", new { type = "Lot" })">
+        <i class="fas fa-map-marked-alt"></i> Lot
+    </a>
+    <a href="@Url.Action("Index", "Listings")">
+        <i class="fas fa-chevron-circle-right"></i> See all
+    </a>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div>
+        <h1><i class="fas fa-search-location"></i> Looking to rent a Condo, Office, or Warehouse?</h1>
+        <p style="font-size:1.1rem; margin: 10px 0 4px; color:#1e3b4f;">Search below for the property that best suits your needs.</p>
+        <div class="search-box">
+            <i class="fas fa-map-pin"></i>
+            <input type="text" placeholder="City, property, or zip..." />
+            <button><i class="fas fa-arrow-right"></i> Search</button>
+        </div>
+        <div style="margin-top: 20px;">
+            <span class="hero-cta"><i class="fas fa-comment-dots"></i> Looking to Inquire?</span>
+            <span style="margin-left: 18px; font-weight: 500; color: #0b2a3c;">Get in touch & we'll help you find the right space.</span>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Properties - CAROUSEL -->
+<div class="section-title">
+    <i class="fas fa-star"></i> Discover Our Newly Featured Properties
+    <span style="font-size: 1rem; font-weight: 400; margin-left: 16px; color: #2c5066;">See what's available for leasing!</span>
+</div>
+
+<div class="carousel-container">
+    <div class="carousel-wrapper" id="featuredCarousel">
+        <div class="carousel-track" id="carouselTrack">
+            @foreach (var property in Model.FeaturedProperties)
+            {
+                <div class="carousel-slide">
+                    <div class="property-card">
+                        <!-- PROPERTY IMAGE - Now shows actual image -->
+                        <div class="property-image-container">
+                            @if (!string.IsNullOrEmpty(property.ImageUrl))
+                            {
+                                <img src="@property.ImageUrl" alt="@property.Title" class="property-image" />
+                            }
+                            else
+                            {
+                                <div class="property-image-placeholder"><i class="fas fa-image"></i></div>
+                            }
+                        </div>
+
+                        <span class="property-tag">Featured <i class="fas fa-crown" style="margin-left: 6px;"></i></span>
+                        <div class="property-price">@property.Price <small>@property.PriceSuffix</small></div>
+                        <div class="property-title">@property.Title</div>
+                        <div class="property-address">
+                            <i class="fas fa-map-marker-alt"></i> @property.Address
+                        </div>
+                        <div class="property-meta">
+                            @foreach (var feature in property.Features)
+                            {
+                                <span><i class="fas @feature.Icon"></i> @feature.Value</span>
+                            }
+                            <span><i class="fas fa-building"></i> @property.PropertyType</span>
+                        </div>
+                        <div style="margin-top: 12px;"><span class="badge-featured">featured</span></div>
+
+                        <a href="@Url.Action("Details", "Property", new { id = property.Id })" style="display: inline-block; margin-top: 15px; padding: 8px 20px; background: #1e7b85; color: white; border-radius: 30px; text-decoration: none; font-weight: 500; transition: 0.2s; text-align: center; width: 100%; box-sizing: border-box;"
+                           onmouseover="this.style.background='#14656e'"
+                           onmouseout="this.style.background='#1e7b85'">
+                            <i class="fas fa-envelope"></i> Inquire Now
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Carousel Navigation Arrows -->
+    <button class="carousel-arrow carousel-prev" id="carouselPrev">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="carousel-arrow carousel-next" id="carouselNext">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Carousel Navigation Dots -->
+    <div class="carousel-dots" id="carouselDots">
+        @{
+            int totalSlides = Model.FeaturedProperties.Count;
+            int totalDots = Math.Max(1, totalSlides - 2);
+        }
+        @for (int i = 0; i < totalDots; i++)
+        {
+            <span class="dot @(i == 0 ? "active" : "")" data-index="@i"></span>
+        }
+    </div>
+</div>
+
+<!-- Explore Cities -->
+<div class="section-title" style="margin-top: 56px;">
+    <i class="fas fa-city"></i> Explore Cities
+</div>
+<p class="section-sub">Discover our various properties from industrial parks in Cavite and Bulacan, to our residentials in Metro Manila.</p>
+
+<div class="explore-grid">
+    @foreach (var city in Model.Cities)
+    {
+        <a href="@Url.Action("Details", "City", new { name = city.Name })" style="text-decoration: none;">
+            <div class="city-card">
+                <i class="fas fa-map-pin"></i>
+                <h4>@city.Name</h4>
+                <p>@city.Description</p>
+                <p style="font-size:0.8rem; color:#1e7b85;">@city.PropertyCount Properties</p>
+            </div>
+        </a>
+    }
+</div>
+
+<p style="color: #2c5066; margin: 8px 0 12px;">
+    <i class="fas fa-check-circle" style="color:#1e7b85;"></i> For your commercial needs, including warehousing, manufacturing, and offices.
+</p>
+
+<!-- Compare Listings -->
+<div class="compare-bar">
+    <i class="fas fa-balance-scale"></i> Compare listings
+    <span style="background: #1e7b85; color: white; padding: 2px 14px; border-radius: 60px; font-size: 0.8rem;">2</span>
+    <span style="margin-left: auto; opacity: 0.7;">Compare</span>
+</div>
+
+<script src="~/js/site.js"></script>

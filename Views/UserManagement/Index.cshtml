@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Leasing.Data
+@model List<ApplicationUser>
+@{
+    ViewData["Title"] = "User Management";
+    var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>>;
+}
+
+<div style="margin:20px 0 30px;">
+    <h1 style="margin:0;">
+        <i class="fas fa-users" style="color:#1e7b85;"></i> User Management
+    </h1>
+    <p style="color:#4d6a7a; margin-top:8px;">Manage users and assign roles.</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="padding:15px 20px; background:#d4edda; border-radius:8px; color:#155724; margin-bottom:20px; border:1px solid #c3e6cb;">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div style="padding:15px 20px; background:#f8d7da; border-radius:8px; color:#721c24; margin-bottom:20px; border:1px solid #f5c6cb;">
+        <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+
+<div style="background:white; border-radius:12px; overflow:hidden; border:1px solid #e9f0f2;">
+    <table style="width:100%; border-collapse:collapse;">
+        <thead style="background:#0b2a3c; color:white;">
+            <tr>
+                <th style="padding:14px; text-align:left;">Email</th>
+                <th style="padding:14px; text-align:left;">Full Name</th>
+                <th style="padding:14px; text-align:left;">Role</th>
+                <th style="padding:14px; text-align:center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                var roles = userRoles?.ContainsKey(user.Id) == true ? userRoles[user.Id] : new List<string>();
+                var role = roles.FirstOrDefault() ?? "None";
+
+                <tr style="border-bottom:1px solid #e9f0f2;">
+                    <td style="padding:14px;">@user.Email</td>
+                    <td style="padding:14px;">@user.FullName</td>
+                    <td style="padding:14px;">
+                        <span style="background:@(role == "Admin" ? "#f5b342" : "#e1f0f2"); color:@(role == "Admin" ? "#0b2a3c" : "#14656e"); padding:4px 14px; border-radius:20px; font-size:0.85rem; font-weight:600;">
+                            @role
+                        </span>
+                    </td>
+                    <td style="padding:14px; text-align:center;">
+                        <a href="@Url.Action("EditRole", new { id = user.Id })" style="color:#1e7b85; text-decoration:none; margin-right:12px; font-weight:500;">
+                            <i class="fas fa-user-tag"></i> Change Role
+                        </a>
+                        <form method="post" action="@Url.Action("Delete", new { id = user.Id })" style="display:inline;" onsubmit="return confirm('Delete this user?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" style="background:none; border:none; color:#d9201b; cursor:pointer; font-weight:500; font-size:inherit;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,39 @@
+﻿@using Leasing.Data
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Change User Role";
+    var currentRoles = ViewBag.CurrentRoles as IList<string>;
+    var allRoles = ViewBag.AllRoles as List<string>;
+    var currentRole = currentRoles?.FirstOrDefault() ?? "User";
+}
+
+<div style="max-width:500px; margin:40px auto;">
+    <a href="@Url.Action("Index")" style="color:#1e7b85; text-decoration:none;">
+        <i class="fas fa-arrow-left"></i> Back to Users
+    </a>
+
+    <h1 style="margin:20px 0;">Change User Role</h1>
+
+    <div style="background:white; padding:30px; border-radius:16px; border:1px solid #e9f0f2;">
+        <p><strong>User:</strong> @Model.Email</p>
+        <p><strong>Name:</strong> @Model.FullName</p>
+
+        <form method="post" action="@Url.Action("EditRole", new { id = Model.Id })">
+            @Html.AntiForgeryToken()
+
+            <label style="display:block; font-weight:500; margin:20px 0 8px;">Assign Role</label>
+            <select name="role" style="width:100%; padding:12px; border:1px solid #dce0e0; border-radius:8px; font-size:1rem;">
+                @foreach (var role in allRoles)
+                {
+                    <option value="@role" selected="@(role == currentRole)">
+                        @role
+                    </option>
+                }
+            </select>
+
+            <button type="submit" style="margin-top:20px; padding:14px 32px; background:#1e7b85; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; width:100%;">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>

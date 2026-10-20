@@ -1,0 +1,283 @@
+﻿@model EmailViewModel
+@{
+    ViewData["Title"] = $"{ViewBag.Property.Title} - RichPaulLeasing";
+    var property = ViewBag.Property as Leasing.Models.Property;
+    var images = property?.Images?.OrderBy(i => i.DisplayOrder).ToList() ?? new List<Leasing.Models.PropertyImage>();
+
+    if (images.Count == 0 && !string.IsNullOrEmpty(property?.ImageUrl))
+    {
+        images.Add(new Leasing.Models.PropertyImage { ImageUrl = property.ImageUrl, Caption = property.Title });
+    }
+}
+
+<!-- Back -->
+<a href="@Url.Action("Index", "Listings")" class="back-to-main">
+    <i class="fas fa-arrow-left"></i> Back to Properties
+</a>
+
+<!-- Two-column layout: left = scrollable details, right = sticky inquire form -->
+<div class="property-detail-layout">
+
+    <!-- ===== LEFT COLUMN ===== -->
+    <div class="property-detail-main">
+
+        <!-- Gallery -->
+        <div class="property-gallery" id="propertyGallery">
+            <div class="gallery-main">
+                @if (images.Count > 0)
+                {
+                    <div class="gallery-track" id="galleryTrack">
+                        @for (int i = 0; i < images.Count; i++)
+                        {
+                            <div class="gallery-slide @(i == 0 ? "active" : "")" data-index="@i">
+                                <img src="@images[i].ImageUrl" alt="@(images[i].Caption ?? property.Title)" />
+                            </div>
+                        }
+                    </div>
+
+                    @if (images.Count > 1)
+                    {
+                        <button type="button" class="gallery-arrow gallery-prev" onclick="galleryPrev()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="gallery-arrow gallery-next" onclick="galleryNext()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="gallery-counter">
+                            <span id="galleryCurrent">1</span> / @images.Count
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="gallery-placeholder"><i class="fas fa-image"></i><p>No images available</p></div>
+                }
+            </div>
+
+            @if (images.Count > 1)
+            {
+                <div class="gallery-thumbnails">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        <div class="gallery-thumb @(i == 0 ? "active" : "")" onclick="galleryGoTo(@i)" data-index="@i">
+                            <img src="@images[i].ImageUrl" alt="Thumb @(i + 1)" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Title -->
+        <div style="margin: 30px 0 20px;">
+            <h1 style="font-size: 2rem; font-weight: 600; color: #0b2a3c; margin-bottom: 8px;">@property.Title</h1>
+            <p style="color: #4d6a7a; font-size: 1rem;">
+                <i class="fas fa-map-marker-alt" style="color: #1e7b85;"></i> @property.Address
+            </p>
+            <div style="margin-top: 12px;">
+                @if (property.IsFeatured)
+                {
+                    <span class="property-tag featured">Featured</span>
+                }
+                <span class="property-tag @(property.Status == "Leased" ? "leased" : "")">@property.Status</span>
+            </div>
+            <div class="property-price" style="margin-top: 16px; font-size: 2rem;">
+                @property.Price <small style="font-size: 1.2rem;">@property.PriceSuffix</small>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <div class="detail-section">
+            <h2 class="detail-heading">Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="overview-label">Property ID</div>
+                    <div class="overview-value">@property.Id</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">Property Type</div>
+                    <div class="overview-value">@property.PropertyType</div>
+                </div>
+                @if (property.Bedrooms.HasValue)
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">Bedroom</div>
+                        <div class="overview-value">@property.Bedrooms</div>
+                    </div>
+                }
+                @if (property.Bathrooms.HasValue)
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">Bathrooms</div>
+                        <div class="overview-value">@property.Bathrooms</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(property.AreaSize))
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">Area Size</div>
+                        <div class="overview-value">@property.AreaSize</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Description Section -->
+        @if (!string.IsNullOrEmpty(property.Description))
+        {
+            <div class="detail-section">
+                <h2 class="detail-heading">Description</h2>
+                <div style="white-space: pre-line; color: #1e3b4f; line-height: 1.7;">
+                    @property.Description
+                </div>
+            </div>
+        }
+
+        <!-- Highlights -->
+        @if (!string.IsNullOrEmpty(property.WarehouseHighlights))
+        {
+            <div class="detail-section">
+                <h2 class="detail-heading">Highlights</h2>
+                <div style="white-space: pre-line; color: #1e3b4f; line-height: 1.7;">
+                    @property.WarehouseHighlights
+                </div>
+            </div>
+        }
+
+        <!-- Rate / Terms / Lease -->
+        @if (!string.IsNullOrEmpty(property.RateDetails) || !string.IsNullOrEmpty(property.Terms) || !string.IsNullOrEmpty(property.LeaseTerm))
+        {
+            <div class="detail-section">
+                <h2 class="detail-heading">Rate & Terms</h2>
+                <div class="overview-grid">
+                    @if (!string.IsNullOrEmpty(property.RateDetails))
+                    {
+                        <div class="overview-item">
+                            <div class="overview-label">Rate</div>
+                            <div class="overview-value">@property.RateDetails</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(property.Terms))
+                    {
+                        <div class="overview-item">
+                            <div class="overview-label">Terms</div>
+                            <div class="overview-value">@property.Terms</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(property.LeaseTerm))
+                    {
+                        <div class="overview-item">
+                            <div class="overview-label">Lease Term</div>
+                            <div class="overview-value">@property.LeaseTerm</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Address Section -->
+        <div class="detail-section">
+            <h2 class="detail-heading">Address</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="overview-label">Address</div>
+                    <div class="overview-value">@property.Address</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">City</div>
+                    <div class="overview-value">@property.City</div>
+                </div>
+                @if (!string.IsNullOrEmpty(property.StateCounty))
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">State / County</div>
+                        <div class="overview-value">@property.StateCounty</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(property.ZipCode))
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">Zip / Postal Code</div>
+                        <div class="overview-value">@property.ZipCode</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(property.Country))
+                {
+                    <div class="overview-item">
+                        <div class="overview-label">Country</div>
+                        <div class="overview-value">@property.Country</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Details / Timestamps -->
+        <div class="detail-section">
+            <h2 class="detail-heading">Details</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="overview-label">Updated on</div>
+                    <div class="overview-value">@property.UpdatedDate.ToString("MMMM d, yyyy 'at' h:mm tt")</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">Property ID</div>
+                    <div class="overview-value">@property.Id</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- ===== END LEFT COLUMN ===== -->
+    <!-- ===== RIGHT COLUMN (sticky inquiry) ===== -->
+    <div class="property-detail-side">
+        <div class="inquiry-card">
+            <h2 class="detail-heading" style="margin-bottom: 16px;">Inquire About This Property</h2>
+
+            <form method="post" action="@Url.Action("SendInquiry", "Property")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="PropertyId" value="@property.Id" />
+                <input type="hidden" name="PropertyTitle" value="@property.Title" />
+                <input type="hidden" name="AgentName" value="@property.AgentName" />
+                <input type="hidden" name="AgentEmail" value="@property.AgentEmail" />
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div style="padding: 12px; background: #d4edda; color: #155724; border-radius: 8px; margin-bottom: 16px;">
+                        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div style="padding: 12px; background: #f8d7da; color: #721c24; border-radius: 8px; margin-bottom: 16px;">
+                        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-weight:500; margin-bottom:6px; font-size: 0.9rem;">Your Name *</label>
+                    <input name="UserName" required style="width:100%; padding:10px; border:1px solid #dce0e0; border-radius:8px;" />
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-weight:500; margin-bottom:6px; font-size: 0.9rem;">Your Email *</label>
+                    <input name="UserEmail" type="email" required style="width:100%; padding:10px; border:1px solid #dce0e0; border-radius:8px;" />
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-weight:500; margin-bottom:6px; font-size: 0.9rem;">Phone *</label>
+                    <input name="PhoneNumber" required style="width:100%; padding:10px; border:1px solid #dce0e0; border-radius:8px;" />
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <label style="display:block; font-weight:500; margin-bottom:6px; font-size: 0.9rem;">Message *</label>
+                    <textarea name="Message" rows="4" required style="width:100%; padding:10px; border:1px solid #dce0e0; border-radius:8px; resize: vertical;">Hello, I am interested in [@property.Title]</textarea>
+                </div>
+                <button type="submit" style="width:100%; padding:12px 28px; background:#1e7b85; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
+                    <i class="fas fa-paper-plane"></i> Send Inquiry
+                </button>
+                <p style="margin-top: 12px; color: #4d6a7a; font-size: 0.8rem; text-align: center;">
+                    <i class="fas fa-lock"></i> Your information is safe and will only be used to respond.
+                </p>
+            </form>
+        </div>
+    </div>
+    <!-- ===== END RIGHT COLUMN ===== -->
+
+</div>
+

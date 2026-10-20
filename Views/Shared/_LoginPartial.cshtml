@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Leasing.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <span style="color:#0b2a3c; font-weight:500;">
+        <i class="fas fa-user-circle" style="color:#1e7b85;"></i>
+        @User.Identity?.Name
+    </span>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="@Url.Action("Index", "Admin")" style="color:#1e7b85; text-decoration:none; font-weight:500;">
+            <i class="fas fa-cog"></i> Admin
+        </a>
+        <a href="@Url.Action("Index", "UserManagement")" style="color:#1e7b85; text-decoration:none; font-weight:500;">
+            <i class="fas fa-users"></i> Users
+        </a>
+    }
+
+    <form method="post" action="/Identity/Account/Logout" style="display:inline; margin:0;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ReturnUrl" value="/" />
+        <button type="submit" class="btn-outline" style="background:transparent; cursor:pointer;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </form>
+}
+else
+{
+    <button type="button" class="btn-outline" onclick="openLoginModal()" style="background:transparent; cursor:pointer;">
+        <i class="fas fa-user"></i> Sign in
+    </button>
+    <button type="button" class="btn-outline" onclick="openRegisterModal()" style="background:transparent; cursor:pointer;">
+        <i class="fas fa-user-plus"></i> Register
+    </button>
+}

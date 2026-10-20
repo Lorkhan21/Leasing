@@ -1,0 +1,129 @@
+﻿@using Leasing.Models
+@model List<Property>
+@{
+    ViewData["Title"] = $"{ViewBag.CityName} - RichPaulLeasing";
+}
+
+<!-- Back to Home -->
+<a href="@Url.Action("Index", "Home")" class="back-to-main"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+<!-- Page Title -->
+<div class="page-title-wrap">
+    <div class="page-title">
+        <h1>@ViewBag.CityName</h1>
+    </div>
+    <div class="view-switch">
+        <a href="#"><i class="fas fa-list"></i></a>
+        <a href="#"><i class="fas fa-th"></i></a>
+    </div>
+</div>
+
+<!-- Advanced Search -->
+<section class="advanced-search">
+    <div class="container">
+        <input type="text" placeholder="Enter Keyword...">
+        <select>
+            <option>Status</option>
+            <option>For Rent</option>
+            <option>For Sale</option>
+            <option>Leased</option>
+        </select>
+        <select>
+            <option>All Cities</option>
+            <option>Caloocan</option>
+            <option>Cavite</option>
+            <option>Manila</option>
+        </select>
+        <select>
+            <option>Type</option>
+            <option>Commercial</option>
+            <option>Office</option>
+            <option>Warehouse</option>
+            <option>Apartment</option>
+            <option>Condo</option>
+        </select>
+        <button class="btn-search"><i class="fas fa-search"></i> Search</button>
+    </div>
+</section>
+
+<!-- Listing Tools -->
+<div class="listing-tools-wrap">
+    <div class="listings-count">@ViewBag.PropertyCount Properties</div>
+    <div class="sort-by">
+        <label>Sort by:</label>
+        <select>
+            <option>Default Order</option>
+            <option>Price - Low to High</option>
+            <option>Price - High to Low</option>
+            <option>Date - New to Old</option>
+        </select>
+    </div>
+</div>
+
+<!-- Property Grid -->
+<div class="property-grid">
+    @foreach (var property in Model)
+    {
+        <div class="property-card">
+            <!-- PROPERTY IMAGE -->
+            <div class="property-image-container">
+                @if (!string.IsNullOrEmpty(property.ImageUrl))
+                {
+                    <img src="@property.ImageUrl" alt="@property.Title" class="property-image" />
+                }
+                else
+                {
+                    <div class="property-image-placeholder"><i class="fas fa-image"></i></div>
+                }
+            </div>
+
+            <div class="property-header">
+                @if (property.IsFeatured)
+                {
+                    <span class="property-tag featured">Featured</span>
+                }
+                <span class="property-tag @(property.Status == "Leased" ? "leased" : "")">@property.Status</span>
+            </div>
+            <div class="property-price">@property.Price <small>@property.PriceSuffix</small></div>
+            <div class="property-title">@property.Title</div>
+            <div class="property-address">
+                <i class="fas fa-map-marker-alt"></i> @property.Address
+            </div>
+            <div class="property-meta">
+                @foreach (var feature in property.Features)
+                {
+                    <span><i class="fas @feature.Icon"></i> @feature.Value</span>
+                }
+                <span><i class="fas fa-building"></i> @property.PropertyType</span>
+            </div>
+            <div class="property-footer">
+                <div class="author">
+                    <img src="@property.AgentImage" alt="@property.AgentName" />
+                    <a href="#">@property.AgentName</a>
+                </div>
+                <span><i class="far fa-clock"></i> @GetTimeAgo(property.PostedDate)</span>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination -->
+<div class="pagination-wrap">
+    <ul class="pagination">
+        <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
+        <li class="page-item active"><span class="page-link">1</span></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+    </ul>
+</div>
+
+@functions {
+    string GetTimeAgo(DateTime date)
+    {
+        var diff = DateTime.Now - date;
+        if (diff.Days > 30) return $"{diff.Days / 30} months ago";
+        if (diff.Days > 0) return $"{diff.Days} days ago";
+        if (diff.Hours > 0) return $"{diff.Hours} hours ago";
+        return "Just now";
+    }
+}
