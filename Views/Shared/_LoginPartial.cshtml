@@ -5,10 +5,18 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <span style="color:#0b2a3c; font-weight:500;">
+    // 1. Fetch the current user from the database
+    var currentUser = await UserManager.GetUserAsync(User);
+
+    // 2. Use FullName if it exists, otherwise fall back to Email/Username
+    var displayName = !string.IsNullOrEmpty(currentUser?.FullName)
+        ? currentUser.FullName
+        : (currentUser?.Email ?? User.Identity?.Name);
+
+    <a href="/Identity/Account/Manage" style="color:#0b2a3c; font-weight:500; text-decoration:none; display:flex; align-items:center; gap:6px; cursor:pointer;" title="Manage your account">
         <i class="fas fa-user-circle" style="color:#1e7b85;"></i>
-        @User.Identity?.Name
-    </span>
+        @displayName
+    </a>
 
     @if (User.IsInRole("Admin"))
     {
@@ -33,7 +41,4 @@ else
     <button type="button" class="btn-outline" onclick="openLoginModal()" style="background:transparent; cursor:pointer;">
         <i class="fas fa-user"></i> Sign in
     </button>
-    @* <button type="button" class="btn-outline" onclick="openRegisterModal()" style="background:transparent; cursor:pointer;">
-        <i class="fas fa-user-plus"></i> Register
-    </button> *@
 }
