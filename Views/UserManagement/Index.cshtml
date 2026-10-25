@@ -6,11 +6,17 @@
     var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>>;
 }
 
-<div style="margin:20px 0 30px;">
-    <h1 style="margin:0;">
-        <i class="fas fa-users" style="color:#1e7b85;"></i> User Management
-    </h1>
-    <p style="color:#4d6a7a; margin-top:8px;">Manage users and assign roles.</p>
+<div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0 30px;">
+    <div>
+        <h1 style="margin:0;">
+            <i class="fas fa-users" style="color:#1e7b85;"></i> User Management
+        </h1>
+        <p style="color:#4d6a7a; margin-top:8px; margin-bottom:0;">Manage users and assign roles.</p>
+    </div>
+    <a href="@Url.Action("Register")"
+       style="padding:12px 24px; background:#1e7b85; color:white; border-radius:8px; text-decoration:none; font-weight:600;">
+        <i class="fas fa-user-plus"></i> Add New User
+    </a>
 </div>
 
 @if (TempData["Success"] != null)

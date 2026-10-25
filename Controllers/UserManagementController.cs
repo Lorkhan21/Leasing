@@ -87,5 +87,55 @@ namespace Leasing.Controllers
             TempData["Success"] = $"User {user.Email} deleted.";
             return RedirectToAction(nameof(Index));
         }
+
+        // NEW: GET Register
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // NEW: POST Register
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(
+            string email, string fullName, string password, string role)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                TempData["Error"] = "Email and password are required.";
+                return View();
+            }
+
+            var existing = await _userManager.FindByEmailAsync(email);
+            if (existing != null)
+            {
+                TempData["Error"] = "A user with that email already exists.";
+                return View();
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                FullName = fullName,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                var assignedRole = string.IsNullOrEmpty(role) ? "User" : role;
+                await _userManager.AddToRoleAsync(user, assignedRole);
+
+                TempData["Success"] = $"User {email} created successfully with role {assignedRole}.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = string.Join(" ", result.Errors.Select(e => e.Description));
+            return View();
+        }
     }
+
 }

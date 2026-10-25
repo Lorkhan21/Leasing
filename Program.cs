@@ -20,6 +20,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
+    options.User.RequireUniqueEmail = true;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -39,17 +40,35 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-app.UseAuthentication();  // MUST come before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Block public registration — only logged-in admins can access the register page
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLower() ?? "";
+
+    if (path.StartsWith("/identity/account/register"))
+    {
+        // Not signed in, or signed in but not an Admin  redirect to login
+        if (context.User.Identity?.IsAuthenticated != true
+            || !context.User.IsInRole("Admin"))
+        {
+            context.Response.Redirect("/Identity/Account/Login");
+            return;
+        }
+    }
+
+    await next();
+});
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages();  // Needed for Identity UI pages (Login, Register)
+app.MapRazorPages();
 
 // Seed database + roles + default admin
 using (var scope = app.Services.CreateScope())
