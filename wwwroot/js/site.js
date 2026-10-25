@@ -63,6 +63,92 @@ function switchToLogin() {
 }
 
 /* ============================================ */
+/* GENERAL INQUIRY MODAL                        */
+/* ============================================ */
+
+function openInquiryModal() {
+    var modal = document.getElementById('inquiryModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+
+    // Hide messages
+    document.getElementById('inquiryError').style.display = 'none';
+    document.getElementById('inquirySuccess').style.display = 'none';
+
+    setTimeout(function () {
+        var nameInput = document.getElementById('inquiryName');
+        if (nameInput) nameInput.focus();
+    }, 100);
+}
+
+function closeInquiryModal() {
+    var modal = document.getElementById('inquiryModal');
+    if (modal) modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    var form = document.getElementById('inquiryForm');
+    if (form) form.reset();
+}
+
+async function submitGeneralInquiry(e) {
+    e.preventDefault();
+
+    var btn = document.getElementById('inquirySubmitBtn');
+    var errorBox = document.getElementById('inquiryError');
+    var successBox = document.getElementById('inquirySuccess');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+
+    try {
+        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        var token = tokenInput ? tokenInput.value : '';
+
+        var formData = new FormData();
+        // NOTE: We use PropertyId = 0 and generic names for the general inquiry
+        formData.append('PropertyId', '0');
+        formData.append('PropertyTitle', 'General Inquiry');
+        formData.append('AgentName', 'RichPaul Leasing Admin');
+        formData.append('AgentEmail', 'leasing@richpaulleasing.com'); // Change to your actual admin email
+        formData.append('UserName', document.getElementById('inquiryName').value);
+        formData.append('UserEmail', document.getElementById('inquiryEmail').value);
+        formData.append('PhoneNumber', document.getElementById('inquiryPhone').value);
+        formData.append('Message', document.getElementById('inquiryMessage').value);
+        formData.append('__RequestVerificationToken', token);
+
+        // We post to the same SendInquiry action
+        var response = await fetch('/Property/SendInquiry', {
+            method: 'POST',
+            body: formData,
+            redirect: 'manual'
+        });
+
+        // Check if it succeeded (usually returns a 302 redirect back)
+        if (response.type === 'opaqueredirect' || response.status === 0 || response.ok || response.status === 302) {
+            successBox.textContent = 'Your inquiry has been sent successfully!';
+            successBox.style.display = 'block';
+            document.getElementById('inquiryForm').reset();
+
+            setTimeout(function () {
+                closeInquiryModal();
+            }, 2000);
+        } else {
+            errorBox.textContent = 'Failed to send inquiry. Please try again.';
+            errorBox.style.display = 'block';
+        }
+    } catch (err) {
+        errorBox.textContent = 'An error occurred. Please try again.';
+        errorBox.style.display = 'block';
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Inquiry';
+    }
+}
+
+/* ============================================ */
 /* SUBMIT LOGIN VIA AJAX (GLOBAL)               */
 /* ============================================ */
 
@@ -114,6 +200,93 @@ function showLoginError(msg) {
     var errorBox = document.getElementById('loginError');
     errorBox.textContent = msg;
     errorBox.style.display = 'block';
+}
+
+/* ============================================ */
+/* CHANGE PASSWORD MODAL                        */
+/* ============================================ */
+
+function openChangePasswordModal() {
+    var modal = document.getElementById('changePasswordModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('passwordSuccess').style.display = 'none';
+    document.getElementById('changePasswordForm').reset();
+}
+
+function closeChangePasswordModal() {
+    var modal = document.getElementById('changePasswordModal');
+    if (modal) modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+}
+
+async function submitChangePassword(e) {
+    e.preventDefault();
+
+    var btn = document.getElementById('passwordSubmitBtn');
+    var errorBox = document.getElementById('passwordError');
+    var successBox = document.getElementById('passwordSuccess');
+
+    var currentPwd = document.getElementById('currentPassword').value;
+    var newPwd = document.getElementById('newPassword').value;
+    var confirmPwd = document.getElementById('confirmPassword').value;
+
+    // Client-side validation
+    if (newPwd !== confirmPwd) {
+        errorBox.textContent = 'New passwords do not match.';
+        errorBox.style.display = 'block';
+        return;
+    }
+
+    if (newPwd.length < 6) {
+        errorBox.textContent = 'Password must be at least 6 characters.';
+        errorBox.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+
+    try {
+        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        var token = tokenInput ? tokenInput.value : '';
+
+        var formData = new FormData();
+        formData.append('currentPassword', currentPwd);
+        formData.append('newPassword', newPwd);
+        formData.append('__RequestVerificationToken', token);
+
+        var response = await fetch('/Account/ChangePassword', {
+            method: 'POST',
+            body: formData
+        });
+
+        var data = await response.json();
+
+        if (data.success) {
+            successBox.textContent = data.message || 'Password updated successfully!';
+            successBox.style.display = 'block';
+            document.getElementById('changePasswordForm').reset();
+
+            setTimeout(function () {
+                closeChangePasswordModal();
+            }, 2000);
+        } else {
+            errorBox.textContent = data.message || 'Failed to update password.';
+            errorBox.style.display = 'block';
+        }
+    } catch (err) {
+        errorBox.textContent = 'An error occurred. Please try again.';
+        errorBox.style.display = 'block';
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Update Password';
+    }
 }
 
 /* ============================================ */

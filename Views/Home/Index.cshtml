@@ -28,13 +28,19 @@
     <div>
         <h1><i class="fas fa-search-location"></i> Looking to rent a Condo, Office, or Warehouse?</h1>
         <p style="font-size:1.1rem; margin: 10px 0 4px; color:#1e3b4f;">Search below for the property that best suits your needs.</p>
-        <div class="search-box">
+
+        <!-- CHANGED: Wrapped in a form that points to the Listings controller -->
+        <form method="get" action="@Url.Action("Index", "Listings")" class="search-box">
             <i class="fas fa-map-pin"></i>
-            <input type="text" placeholder="City, property, or zip..." />
-            <button><i class="fas fa-arrow-right"></i> Search</button>
-        </div>
+            <!-- The name="keyword" is what the controller will look for -->
+            <input type="text" name="keyword" placeholder="City, property, or zip..." />
+            <button type="submit"><i class="fas fa-arrow-right"></i> Search</button>
+        </form>
+
         <div style="margin-top: 20px;">
-            <span class="hero-cta"><i class="fas fa-comment-dots"></i> Looking to Inquire?</span>
+            <button type="button" class="hero-cta" onclick="openInquiryModal()" style="border:none; cursor:pointer;">
+                <i class="fas fa-comment-dots"></i> Looking to Inquire?
+            </button>
             <span style="margin-left: 18px; font-weight: 500; color: #0b2a3c;">Get in touch & we'll help you find the right space.</span>
         </div>
     </div>

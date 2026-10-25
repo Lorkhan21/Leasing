@@ -48,19 +48,36 @@ namespace Leasing.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var property = _propertyService.GetPropertyById(model.PropertyId);
-                ViewBag.Property = property;
-                return View("Details", model);
+                // If it's a general inquiry (ID 0), don't try to load a property
+                if (model.PropertyId > 0)
+                {
+                    var property = _propertyService.GetPropertyById(model.PropertyId);
+                    ViewBag.Property = property;
+                    return View("Details", model);
+                }
+                return BadRequest("Invalid form data.");
             }
 
             var result = await _emailService.SendInquiryEmailAsync(model);
 
             if (result)
+            {
                 TempData["SuccessMessage"] = "Your inquiry has been sent successfully!";
+            }
             else
+            {
                 TempData["ErrorMessage"] = "Failed to send your inquiry.";
+            }
 
-            return RedirectToAction("Details", new { id = model.PropertyId });
+            // If it's a general inquiry, just go home. Otherwise go back to property.
+            if (model.PropertyId > 0)
+            {
+                return RedirectToAction("Details", new { id = model.PropertyId });
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
     }
 }
