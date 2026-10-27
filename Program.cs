@@ -25,9 +25,24 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Only session cookie — auto-logout on browser close
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(1); // fallback (not used unless Remember Me)
+    options.SlidingExpiration = false;             // no idle reset
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.IsEssential = true;
+});
+
 // Register custom services
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Register Identity's email sender (uses your Brevo SMTP for Forgot Password)
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, Leasing.Services.IdentityEmailSender>();
 
 var app = builder.Build();
 

@@ -1,4 +1,74 @@
 ﻿/* ============================================ */
+/* FORGOT PASSWORD MODAL                        */
+/* ============================================ */
+function openForgotPasswordModal() {
+    closeLoginModal();
+    var modal = document.getElementById('forgotPasswordModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    document.getElementById('forgotPasswordError').style.display = 'none';
+    document.getElementById('forgotPasswordSuccess').style.display = 'none';
+    setTimeout(function () {
+        var emailInput = document.getElementById('forgotPasswordEmail');
+        if (emailInput) emailInput.focus();
+    }, 100);
+}
+
+function closeForgotPasswordModal() {
+    var modal = document.getElementById('forgotPasswordModal');
+    if (modal) modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    var form = document.getElementById('forgotPasswordForm');
+    if (form) form.reset();
+}
+
+async function submitForgotPassword(e) {
+    e.preventDefault();
+
+    var btn = document.getElementById('forgotPasswordSubmitBtn');
+    var errorBox = document.getElementById('forgotPasswordError');
+    var successBox = document.getElementById('forgotPasswordSuccess');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+
+    try {
+        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        var token = tokenInput ? tokenInput.value : '';
+
+        var formData = new FormData();
+        formData.append('Input.Email', document.getElementById('forgotPasswordEmail').value);
+        formData.append('__RequestVerificationToken', token);
+
+        var response = await fetch('/Identity/Account/ForgotPassword', {
+            method: 'POST',
+            body: formData,
+            redirect: 'manual'
+        });
+
+        if (response.ok || response.status === 0 || response.type === 'opaqueredirect') {
+            successBox.innerHTML = '✅ If that email exists in our system, a reset link has been sent. Check your inbox.';
+            successBox.style.display = 'block';
+            document.getElementById('forgotPasswordForm').reset();
+        } else {
+            errorBox.textContent = 'Failed to send reset email. Please try again.';
+            errorBox.style.display = 'block';
+        }
+    } catch (err) {
+        errorBox.textContent = 'An error occurred. Please try again.';
+        errorBox.style.display = 'block';
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+    }
+}
+
+
+/* ============================================ */
 /* AUTH MODAL FUNCTIONS (GLOBAL)                */
 /* ============================================ */
 
@@ -166,10 +236,14 @@ async function submitLogin(e) {
         var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
         var token = tokenInput ? tokenInput.value : '';
 
+        // NEW: Grab the "Remember Me" checkbox value
+        var rememberMe = document.getElementById('loginRememberMe').checked;
+
         var formData = new FormData();
         formData.append('Input.Email', document.getElementById('loginEmail').value);
         formData.append('Input.Password', document.getElementById('loginPassword').value);
-        formData.append('Input.RememberMe', 'false');
+        // NEW: Send the rememberMe value to Identity
+        formData.append('Input.RememberMe', rememberMe.toString());
         formData.append('__RequestVerificationToken', token);
 
         var response = await fetch('/Identity/Account/Login', {

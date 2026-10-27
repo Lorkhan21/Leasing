@@ -23,13 +23,13 @@ namespace Leasing.Services
             try
             {
                 // Get email settings from appsettings.json
-                var smtpServer = _configuration["EmailSettings:SmtpServer"];
-                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
-                var senderName = _configuration["EmailSettings:SenderName"];
-                var senderEmail = _configuration["EmailSettings:SenderEmail"];
-                var username = _configuration["EmailSettings:Username"];
-                var password = _configuration["EmailSettings:Password"];
-                var useTLS = bool.Parse(_configuration["EmailSettings:UseTLS"]);
+                var smtpServer = _configuration["EmailSettings:SmtpServer"]!;
+                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]!);
+                var senderName = _configuration["EmailSettings:SenderName"]!;
+                var senderEmail = _configuration["EmailSettings:SenderEmail"]!;
+                var username = _configuration["EmailSettings:Username"]!;
+                var password = _configuration["EmailSettings:Password"]!;
+                var useTLS = bool.Parse(_configuration["EmailSettings:UseTLS"]!);
 
                 // Create the email message
                 var email = new MimeMessage();
