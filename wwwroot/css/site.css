@@ -875,6 +875,146 @@ footer {
 }
 
 /* ============================================ */
+/* USER DROPDOWN MENU                           */
+/* ============================================ */
+
+.user-dropdown-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown-btn {
+    background: transparent;
+    border: 2px solid #1e7b85;
+    color: #1e7b85;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+    .user-dropdown-btn:hover {
+        background: #1e7b85;
+        color: white;
+        transform: scale(1.05);
+    }
+
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    min-width: 240px;
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s ease;
+    z-index: 1000;
+    border: 1px solid #e9f0f2;
+}
+
+    .user-dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+.user-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+}
+
+.user-dropdown-name {
+    font-weight: 600;
+    color: #0b2a3c;
+    font-size: 0.95rem;
+}
+
+.user-dropdown-email {
+    font-size: 0.8rem;
+    color: #4d6a7a;
+    margin-top: 2px;
+    word-break: break-all;
+}
+
+.user-dropdown-divider {
+    height: 1px;
+    background: #e9f0f2;
+    margin: 6px 0;
+}
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    color: #1e3b4f;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+    .user-dropdown-item:hover {
+        background: #f0f7f8;
+        color: #1e7b85;
+        padding-left: 24px;
+    }
+
+    .user-dropdown-item i {
+        width: 18px;
+        color: #1e7b85;
+        font-size: 0.95rem;
+        transition: color 0.15s ease;
+    }
+
+    .user-dropdown-item:hover i {
+        color: #0b2a3c;
+    }
+
+.user-dropdown-logout {
+    color: #d9201b !important;
+}
+
+    .user-dropdown-logout i {
+        color: #d9201b !important;
+    }
+
+    .user-dropdown-logout:hover {
+        background: #fdecec !important;
+        color: #b01512 !important;
+    }
+
+        .user-dropdown-logout:hover i {
+            color: #b01512 !important;
+        }
+
+/* Mobile */
+@media (max-width: 768px) {
+    .user-dropdown-menu {
+        right: -10px;
+        min-width: 220px;
+    }
+}
+
+/* ============================================ */
 /* PROPERTY GRID — 3-column card layout         */
 /* ============================================ */
 

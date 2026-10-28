@@ -47,7 +47,8 @@ namespace Leasing.Services
                     PropertyCount = g.Count(),  // This is a temporary property
                     Description = g.First().PropertyType == "Warehouse" ? "Industrial & warehouses" :
                                   g.First().PropertyType == "Commercial" ? "Commercial & retail" :
-                                  "Residential & commercial"
+                                  "Residential & commercial",
+                    ImageUrl = "/image/cities/" + g.Key.ToLower().Replace(" ", "-") + ".jpg"
                 })
                 .ToList();
         }

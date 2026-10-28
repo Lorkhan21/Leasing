@@ -219,6 +219,35 @@ async function submitGeneralInquiry(e) {
 }
 
 /* ============================================ */
+/* USER DROPDOWN MENU                           */
+/* ============================================ */
+
+function toggleUserDropdown(event) {
+    if (event) event.stopPropagation();
+    var menu = document.getElementById('userDropdownMenu');
+    if (!menu) return;
+    menu.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    var menu = document.getElementById('userDropdownMenu');
+    if (!menu) return;
+    var wrap = event.target.closest('.user-dropdown-wrap');
+    if (!wrap) {
+        menu.classList.remove('show');
+    }
+});
+
+// Close dropdown on Escape key
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        var menu = document.getElementById('userDropdownMenu');
+        if (menu) menu.classList.remove('show');
+    }
+});
+
+/* ============================================ */
 /* SUBMIT LOGIN VIA AJAX (GLOBAL)               */
 /* ============================================ */
 
